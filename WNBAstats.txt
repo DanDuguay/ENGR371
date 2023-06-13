@@ -38,7 +38,7 @@ Skylar Diggins-Smith,,5.9,USA
 Stefanie Dolson,,6.5,USA
 Candice Dupree,,6.2,USA
 Makayla Epps,,5.10,USA
-Temi Fagbenle,6.4,United Kingdom
+Temi Fagbenle,,6.4,United Kingdom
 Feyonda Fitzgerald,,5.9,USA
 Sylvia Fowles,,5.10,
 Cayla George,,6.4,Australia

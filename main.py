@@ -1,75 +1,30 @@
-NHANESfile = open("NHANESstats.txt", "r")
-NBAfile = open("NBAstats.txt", "r")
-WNBAfile = open("WNBAstats.txt", "r")
-NHANESheightCMfile = open("NHANESheightCMfile.txt", "w")
-NBAheightFTfile = open("NBAheightFTfile.txt", "w")
-WNBAheightFTfile = open("NBAheightFTfile.txt", "w")
-
-def extract_height_data(file, column_name):
+def extract_height_data(inputFile, outputFile, column_name):
     i = 0
     j = 0
     usefulRowNumber = 0
+    inputFileVar = open(inputFile, "r")
+    outputFileVar = open(outputFile, "w")
 
-    for line in file:
+    for line in inputFileVar:
         lineWordArray = line.split(",")
 
+        if i == 0:
+            for word in lineWordArray:
+                if word.strip() == column_name:
+                    usefulRowNumber = j
+                j += 1
 
-i = 0
-j = 0
-usefulRowNumber = 0
-# Extracting the BMXHT column from the NHANES survey data, and saving it in a separate file.
-for line in NHANESfile:
-    lineWordArray = line.split(",")
+        if len(lineWordArray) > 1 and lineWordArray[usefulRowNumber] != "" and i != 0:
+            outputFileVar.write(lineWordArray[usefulRowNumber] + "\n")
 
-    if i == 0:
-        for word in lineWordArray:
-            if word.strip() == "BMXHT":
-                usefulRowNumber = j
-            j += 1
+        i += 1
 
-    if len(lineWordArray) > 2 and lineWordArray[usefulRowNumber] != "":
-        NHANESheightCMfile.write(lineWordArray[usefulRowNumber] + "\n")
+    inputFileVar.close()
+    outputFileVar.close()
 
-    i += 1
-
-i = 0
-j = 0
-# Extracting the HEIGHT column from the NBA data, saving it to a separate file.
-for line in NBAfile:
-    lineWordArray = line.split(",")
-
-    if i == 0:
-        for word in lineWordArray:
-            if word.strip() == "HEIGHT":
-                usefulRowNumber = j
-            j += 1
-    if len(lineWordArray) > 2 and lineWordArray[usefulRowNumber] != "":
-        NBAheightFTfile.write(lineWordArray[usefulRowNumber] + "\n")
-
-    i += 1
-
-i = 0
-j = 0
-
-# Extracting the HEIGHT column from the NBA data, saving it to a separate file.
-for line in NBAfile:
-    lineWordArray = line.split(",")
-
-    if i == 0:
-        for word in lineWordArray:
-            if word.strip() == "HEIGHT":
-                usefulRowNumber = j
-            j += 1
-    if len(lineWordArray) > 2 and lineWordArray[usefulRowNumber] != "":
-        NBAheightFTfile.write(lineWordArray[usefulRowNumber] + "\n")
+####################################################################################################################
 
 
-
-
-NBAheightFTfile.close()
-WNBAheightFTfile.close()
-NHANESheightCMfile.close()
-NHANESfile.close()
-NBAfile.close()
-WNBAfile.close()
-
+extract_height_data("NHANESstats.txt", "NHANESheightCMfile.txt", "BMXHT")
+extract_height_data("NBAstats.txt", "NBAheightFTfile.txt", "HEIGHT")
+extract_height_data("WNBAstats.txt", "WNBAheightFTfile.txt", "HEIGHT")
