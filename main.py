@@ -22,6 +22,7 @@ def extract_height_data(inputFile, outputFile, column_name):
     inputFileVar.close()
     outputFileVar.close()
 
+
 def convert_FT_to_CM(inputFile, outputFile):
     inputFileVar = open(inputFile, "r")
     outputFileVar = open(outputFile, "w")
@@ -39,6 +40,23 @@ def convert_FT_to_CM(inputFile, outputFile):
     inputFileVar.close()
     outputFileVar.close()
 
+def combine_WNBA_NBA (WNBAcmFile, NBAcmFile, outputFile):
+    WNBAcmFileVar = open(WNBAcmFile, "r")
+    NBAcmFileVar = open(NBAcmFile, "r")
+    outputFileVar = open(outputFile, "w")
+
+    for line in WNBAcmFileVar:
+        if line.strip() != "":
+            outputFileVar.write(line)
+
+    for line in NBAcmFileVar:
+        if line.strip() != "":
+            outputFileVar.write(line)
+
+    WNBAcmFileVar.close()
+    NBAcmFileVar.close()
+    outputFileVar.close()
+
 
 ####################################################################################################################
 
@@ -50,3 +68,4 @@ extract_height_data("WNBAstats.txt", "WNBAheightFTfile.txt", "HEIGHT")
 convert_FT_to_CM("NBAheightFTfile.txt", "NBAheightCMfile.txt")
 convert_FT_to_CM("WNBAheightFTfile.txt", "WNBAheightCMfile.txt")
 
+combine_WNBA_NBA("WNBAheightCMfile.txt", "NBAheightCMfile.txt", "NBAcombinedCMfile.txt")
