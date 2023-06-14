@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-
+import numpy as np
 def extract_height_data(inputFile, outputFile, column_name):
     i = 0
     j = 0
@@ -77,15 +77,24 @@ def calculate_mean (inputFile):
 
     return sum / lineCount
 
-def create_graph (inputFile, xAxis_name, yAxis_name, plotTitle):
+def create_graph (inputFile, xAxis_name, yAxis_name, plotTitle, graphSize, xAxis_ticks):
     inputFileVar = open(inputFile, "r")
+
     y = [float(line.strip()) for line in inputFileVar]
+
+    dictionary = {i:y.count(i) for i in y}
+    print (dictionary)
     x = [float(i) for i in range(1, len(y)+1)]
 
-    plt.plot(x,y)
+    plt.rcParams['figure.figsize'] = [graphSize, graphSize]
+    plt.plot(dictionary.keys(),dictionary.values())
     plt.xlabel(xAxis_name)
     plt.ylabel(yAxis_name)
     plt.title(plotTitle)
+    plt.xlim(list(dictionary)[0],list(dictionary)[-1])
+    plt.ylim(0)
+    plt.xticks(np.arange(list(dictionary)[0], list(dictionary)[-1]+1, xAxis_ticks))
+
     plt.show()
 
     inputFileVar.close()
@@ -132,4 +141,7 @@ sort_file("WNBAheightCMfile.txt", "sortedWNBAcmFile.txt")
 sort_file("NBAcombinedCMfile.txt", "sortedNBAcombinedFile.txt")
 sort_file("NHANESheightCMfile.txt", "sortedNHANEScmFile.txt")
 
-create_graph("sortedNBAcmFile.txt", "Number of People", "Height", "NBA Height In cm")
+create_graph("sortedNBAcmFile.txt", "Height", "Occurrences", "NBA Height in cm", 15, 2)
+create_graph("sortedWNBAcmFile.txt", "Height", "Occurrences", "WNBA Height in cm", 15, 2)
+create_graph("sortedNBAcombinedFile.txt", "Height", "Occurrences", "NBA Combined Height in cm", 15, 2)
+create_graph("sortedNHANEScmFile.txt", "Height", "Occurrences", "NHANES Height in cm", 22, 3)
