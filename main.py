@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import scipy.stats as st
+
 def extract_height_data(inputFile, outputFile, column_name):
     i = 0
     j = 0
@@ -117,7 +119,7 @@ def create_histogram (inputFile, xAxis_name, yAxis_name, plotTitle, graphSize, b
     plt.show()
     inputFileVar.close()
 
-def create_probability_density_graph (inputFile, xAxis_name, yAxis_name, plotTitle, graphSize, xAxis_ticks):
+def create_normal_distribution_graph (inputFile, xAxis_name, yAxis_name, plotTitle, graphSize, xAxis_ticks):
     inputFileVar = open(inputFile, "r")
 
     y = [float(line.strip()) for line in inputFileVar]
@@ -126,11 +128,13 @@ def create_probability_density_graph (inputFile, xAxis_name, yAxis_name, plotTit
     x = [float(i) for i in range(1, len(y) + 1)]
 
     mean = np.mean(y)
-    print(mean)
+    print(inputFile + " mean: " + str(round(mean,1)))
     standardDeviation = np.std(y)
-    print(standardDeviation)
-    PDF = calculate_probability_distribution(y, mean, standardDeviation)
+    print(inputFile + " standard deviation: " + str(round(standardDeviation,1)))
+    variance = standardDeviation**2
+    print(inputFile + " variance: " + str(round(variance,1)) + "\n")
 
+    PDF = calculate_normal_distribution(y, mean, standardDeviation)
     plt.plot(y, PDF, color="red")
     #plt.plot(dictionary.keys(), dictionary.values())
 
@@ -145,9 +149,15 @@ def create_probability_density_graph (inputFile, xAxis_name, yAxis_name, plotTit
     plt.show()
     inputFileVar.close()
 
-def calculate_probability_distribution (x, mean, standardDeviation):
-    probabilityDensity = (np.pi * standardDeviation) * np.exp(-0.5 * ((x-mean)/standardDeviation)**2)
+# normal distribution = (1/pi*sd)exp[
+def calculate_normal_distribution (x, mean, standardDeviation):
+    #probabilityDensity = ((np.pi * standardDeviation) * np.exp(-0.5 * ((x-mean)/standardDeviation)**2))
+    probabilityDensity = (1 / (standardDeviation * np.sqrt(2 * np.pi))) * np.exp(-((x - mean) / (2 * standardDeviation)) ** 2)
     return probabilityDensity
+
+def calculate_Z_score (x, mean, standardDeviation):
+    z_score = (x-mean)/standardDeviation
+    return z_score
 
 def sort_file (inputFile, outputFile):
     inputFileVar = open(inputFile, "r")
@@ -177,14 +187,30 @@ convert_FT_to_CM("WNBAheightFTfile.txt", "WNBAheightCMfile.txt")
 combine_WNBA_NBA("WNBAheightCMfile.txt", "NBAheightCMfile.txt", "NBAcombinedCMfile.txt")
 
 NBAmean = round(calculate_mean("NBAheightCMfile.txt"), 1)
-WNBAmean = round(calculate_mean("WNBAheightCMfile.txt"), 1)
-combinedMean = round(calculate_mean("NBAcombinedCMfile.txt"), 1)
-NHANESmean = round(calculate_mean("NHANESheightCMfile.txt"), 1)
+NBAvariance = NBAmean**2
 
+WNBAmean = round(calculate_mean("WNBAheightCMfile.txt"), 1)
+WNBAvariance = WNBAmean**2
+
+combinedMean = round(calculate_mean("NBAcombinedCMfile.txt"), 1)
+combinedVariance = combinedMean**2
+
+NHANESmean = round(calculate_mean("NHANESheightCMfile.txt"), 1)
+NHANESvariance = NHANESmean**2
+
+"""
 print("NBA mean: " + str(NBAmean) + "\n")
+print("NBA variance: " + str(NBAvariance) + "\n")
+
 print("WNBA mean: " + str(WNBAmean) + "\n")
+print("WNBA variance: " + str(WNBAvariance) + "\n")
+
 print("Combined NBA/WNBA mean: " + str(combinedMean) + "\n")
+print("Combined NBA/WNBA variance: " + str(combinedVariance) + "\n")
+
 print("NHANES mean: " + str(NHANESmean) + " (NOTE: Sample age range is 0 to 150 years old)\n")
+print("NHANES variance: " + str(NHANESvariance) + "\n")
+"""
 
 sort_file("NBAheightCMfile.txt", "sortedNBAcmFile.txt")
 sort_file("WNBAheightCMfile.txt", "sortedWNBAcmFile.txt")
@@ -201,7 +227,7 @@ create_histogram("sortedWNBAcmFile.txt", "Height", "Occurrences", "Histogram - W
 create_histogram("sortedNBAcombinedFile.txt", "Height", "Occurrences", "Histogram - NBA Combined Height", 15, 18)
 create_histogram("sortedNHANEScmFile.txt", "Height", "Occurrences", "Histogram - NHANES Height", 22, 40)
 
-create_probability_density_graph("sortedNBAcmFile.txt", "Data Points", "Probability Density", "PDF - NBA Height", 15, 2)
-create_probability_density_graph("sortedWNBAcmFile.txt", "Data Points", "Probability Density", "PDF - WNBA Height", 15, 2)
-create_probability_density_graph("sortedNBAcombinedFile.txt", "Data Points", "Probability Density", "PDF - NBA Combined Height", 15, 2)
-create_probability_density_graph("sortedNHANEScmFile.txt", "Data Points", "Probability Density", "PDF - NHANES Height", 22, 3)
+create_normal_distribution_graph("sortedNBAcmFile.txt", "Data Points", "Probability Density", "Normal Distribution - NBA Height", 15, 2)
+create_normal_distribution_graph("sortedWNBAcmFile.txt", "Data Points", "Probability Density", "Normal Distribution - WNBA Height", 15, 2)
+create_normal_distribution_graph("sortedNBAcombinedFile.txt", "Data Points", "Probability Density", "Normal Distribution - NBA Combined Height", 15, 2)
+create_normal_distribution_graph("sortedNHANEScmFile.txt", "Data Points", "Probability Density", "Normal Distribution - NHANES Height", 22, 3)
