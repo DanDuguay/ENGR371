@@ -71,23 +71,21 @@ def calculate_mean (inputFile):
             sum += float(line)
             lineCount += 1
 
-    print(sum)
-    print(lineCount)
-    print("\n")
-
     return sum / lineCount
 
-def create_graph (inputFile, xAxis_name, yAxis_name, plotTitle, graphSize, xAxis_ticks):
+def create_plot_graph (inputFile, xAxis_name, yAxis_name, plotTitle, graphSize, xAxis_ticks):
     inputFileVar = open(inputFile, "r")
 
     y = [float(line.strip()) for line in inputFileVar]
 
     dictionary = {i:y.count(i) for i in y}
-    print (dictionary)
     x = [float(i) for i in range(1, len(y)+1)]
 
+    plt.plot(dictionary.keys(), dictionary.values())
+
+    plt.rc('axes', titlesize=30)
+    plt.rc('axes', labelsize=30)
     plt.rcParams['figure.figsize'] = [graphSize, graphSize]
-    plt.plot(dictionary.keys(),dictionary.values())
     plt.xlabel(xAxis_name)
     plt.ylabel(yAxis_name)
     plt.title(plotTitle)
@@ -96,8 +94,56 @@ def create_graph (inputFile, xAxis_name, yAxis_name, plotTitle, graphSize, xAxis
     plt.xticks(np.arange(list(dictionary)[0], list(dictionary)[-1]+1, xAxis_ticks))
 
     plt.show()
+    inputFileVar.close()
+
+def create_histogram (inputFile, xAxis_name, yAxis_name, plotTitle, graphSize, binAmount):
+    inputFileVar = open(inputFile, "r")
+
+    y = [float(line.strip()) for line in inputFileVar]
+
+    dictionary = {i: y.count(i) for i in y}
+    x = [float(i) for i in range(1, len(y) + 1)]
+
+    plt.hist(y, bins=binAmount)
+    plt.plot(dictionary.keys(), dictionary.values())
+
+    plt.rc('axes', titlesize=30)
+    plt.rc('axes', labelsize=30)
+    plt.rcParams['figure.figsize'] = [graphSize, graphSize]
+    plt.xlabel(xAxis_name)
+    plt.ylabel(yAxis_name)
+    plt.title(plotTitle)
+
+    plt.show()
+    inputFileVar.close()
+
+def create_normal_distribution_graph (inputFile, xAxis_name, yAxis_name, plotTitle, graphSize, xAxis_ticks):
+    inputFileVar = open(inputFile, "r")
+
+    y = [float(line.strip()) for line in inputFileVar]
+
+    dictionary = {i: y.count(i) for i in y}
+    x = [float(i) for i in range(1, len(y) + 1)]
+
+    mean = np.mean(y)
+    standardDeviation = np.std(y)
+    PDF = calculate_normal_distribution(y, mean, standardDeviation)
+
+    plt.plot(y, PDF, color="red")
+    plt.plot(dictionary.keys(), dictionary.values())
+
+    plt.rc('axes', titlesize=30)
+    plt.rc('axes', labelsize=30)
+    plt.rcParams['figure.figsize'] = [graphSize, graphSize]
+    plt.xlabel(xAxis_name)
+    plt.ylabel(yAxis_name)
+    plt.title(plotTitle)
 
     inputFileVar.close()
+
+def calculate_normal_distribution (x, mean, standardDeviation):
+    probabilityDensity = (np.pi * standardDeviation) * np.exp(-0.5 * ((x-mean)/standardDeviation)**2)
+    return probabilityDensity
 
 def sort_file (inputFile, outputFile):
     inputFileVar = open(inputFile, "r")
@@ -141,7 +187,17 @@ sort_file("WNBAheightCMfile.txt", "sortedWNBAcmFile.txt")
 sort_file("NBAcombinedCMfile.txt", "sortedNBAcombinedFile.txt")
 sort_file("NHANESheightCMfile.txt", "sortedNHANEScmFile.txt")
 
-create_graph("sortedNBAcmFile.txt", "Height", "Occurrences", "NBA Height in cm", 15, 2)
-create_graph("sortedWNBAcmFile.txt", "Height", "Occurrences", "WNBA Height in cm", 15, 2)
-create_graph("sortedNBAcombinedFile.txt", "Height", "Occurrences", "NBA Combined Height in cm", 15, 2)
-create_graph("sortedNHANEScmFile.txt", "Height", "Occurrences", "NHANES Height in cm", 22, 3)
+create_plot_graph("sortedNBAcmFile.txt", "Height", "Occurrences", "NBA Height in cm", 15, 2)
+create_plot_graph("sortedWNBAcmFile.txt", "Height", "Occurrences", "WNBA Height in cm", 15, 2)
+create_plot_graph("sortedNBAcombinedFile.txt", "Height", "Occurrences", "NBA Combined Height in cm", 15, 2)
+create_plot_graph("sortedNHANEScmFile.txt", "Height", "Occurrences", "NHANES Height in cm", 22, 3)
+
+create_histogram("sortedNBAcmFile.txt", "Height", "Occurrences", "NBA Height in cm", 15, 18)
+create_histogram("sortedWNBAcmFile.txt", "Height", "Occurrences", "WNBA Height in cm", 15, 18)
+create_histogram("sortedNBAcombinedFile.txt", "Height", "Occurrences", "NBA Combined Height in cm", 15, 18)
+create_histogram("sortedNHANEScmFile.txt", "Height", "Occurrences", "NHANES Height in cm", 22, 40)
+
+create_normal_distribution_graph("sortedNBAcmFile.txt", "Height", "Occurrences", "NBA Height in cm", 15, 2)
+create_normal_distribution_graph("sortedWNBAcmFile.txt", "Height", "Occurrences", "WNBA Height in cm", 15, 2)
+create_normal_distribution_graph("sortedNBAcombinedFile.txt", "Height", "Occurrences", "NBA Combined Height in cm", 15, 2)
+create_normal_distribution_graph("sortedNHANEScmFile.txt", "Height", "Occurrences", "NHANES Height in cm", 22, 3)
