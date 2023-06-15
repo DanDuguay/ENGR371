@@ -62,6 +62,17 @@ def combine_WNBA_NBA (WNBAcmFile, NBAcmFile, outputFile):
     NBAcmFileVar.close()
     outputFileVar.close()
 
+def trim_data (inputFile, outputFile, trimValue):
+    inputFileVar = open(inputFile, "r")
+    outputFileVar= open(outputFile, "w")
+
+    for line in inputFileVar:
+        if float(line.strip()) > trimValue:
+            outputFileVar.write(line)
+
+    inputFileVar.close()
+    outputFileVar.close()
+
 # mean = 1/n * [sum of values from 1 to n]
 def calculate_mean (inputFile):
     inputFileVar = open(inputFile, "r")
@@ -83,11 +94,12 @@ def create_plot_graph (inputFile, xAxis_name, yAxis_name, plotTitle, graphSize, 
     dictionary = {i:y.count(i) for i in y}
     x = [float(i) for i in range(1, len(y)+1)]
 
-    plt.plot(dictionary.keys(), dictionary.values())
-
     plt.rc('axes', titlesize=30)
     plt.rc('axes', labelsize=30)
     plt.rcParams['figure.figsize'] = [graphSize, graphSize]
+
+    plt.plot(dictionary.keys(), dictionary.values())
+
     plt.xlabel(xAxis_name)
     plt.ylabel(yAxis_name)
     plt.title(plotTitle)
@@ -106,12 +118,13 @@ def create_histogram (inputFile, xAxis_name, yAxis_name, plotTitle, graphSize, b
     dictionary = {i: y.count(i) for i in y}
     x = [float(i) for i in range(1, len(y) + 1)]
 
-    plt.hist(y, bins=binAmount)
-    plt.plot(dictionary.keys(), dictionary.values())
-
     plt.rc('axes', titlesize=30)
     plt.rc('axes', labelsize=30)
     plt.rcParams['figure.figsize'] = [graphSize, graphSize]
+
+    plt.hist(y, bins=binAmount)
+    plt.plot(dictionary.keys(), dictionary.values())
+
     plt.xlabel(xAxis_name)
     plt.ylabel(yAxis_name)
     plt.title(plotTitle)
@@ -123,7 +136,6 @@ def create_normal_distribution_graph (inputFile, xAxis_name, yAxis_name, plotTit
     inputFileVar = open(inputFile, "r")
 
     y = [float(line.strip()) for line in inputFileVar]
-
     dictionary = {i: y.count(i) for i in y}
     x = [float(i) for i in range(1, len(y) + 1)]
 
@@ -132,15 +144,18 @@ def create_normal_distribution_graph (inputFile, xAxis_name, yAxis_name, plotTit
     standardDeviation = np.std(y)
     print(inputFile + " standard deviation: " + str(round(standardDeviation,1)))
     variance = standardDeviation**2
-    print(inputFile + " variance: " + str(round(variance,1)) + "\n")
+    print(inputFile + " variance: " + str(round(variance,1)))
+    print("calculated Standard Deviation: " + str(calculate_standard_deviation(y, mean)) + "\n")
 
     PDF = calculate_normal_distribution(y, mean, standardDeviation)
-    plt.plot(y, PDF, color="red")
     #plt.plot(dictionary.keys(), dictionary.values())
 
     plt.rc('axes', titlesize=30)
     plt.rc('axes', labelsize=30)
     plt.rcParams['figure.figsize'] = [graphSize, graphSize]
+
+    plt.plot(y, PDF, color="red")
+
     plt.xlabel(xAxis_name)
     plt.ylabel(yAxis_name)
     plt.title(plotTitle)
@@ -174,9 +189,25 @@ def sort_file (inputFile, outputFile):
 
 def calculate_probability (x, mean, standardDeviation):
     z_score = calculate_Z_score(x, mean, standardDeviation)
-    print("Probability of being less or equal to " + str(mean) + " cm tall is " + str(round(st.norm.cdf(z_score),1)))
+    #print("Probability of being less or equal to " + str(mean) + " cm tall is " + str(st.norm.cdf(z_score)))
+    return st.norm.cdf(z_score)
+
+def calculate_standard_deviation (x, mean):
+    result = sum(((np.abs(x-mean))**2))
+    standardDeviation = np.sqrt(result/len(x))
+    return standardDeviation
+
+def count_players_in_height_range (inputFile, lowerLimit, upperLimit):
+    inputFileVar = open(inputFile, "r")
+    count = 0
+
+    for line in inputFileVar:
+        if float(line.strip()) > lowerLimit and float(line.strip()) <= upperLimit:
+            count += 1
 
 
+    return count
+    inputFileVar.close()
 
 ####################################################################################################################
 
@@ -195,6 +226,10 @@ sort_file("WNBAheightCMfile.txt", "sortedWNBAcmFile.txt")
 sort_file("NBAcombinedCMfile.txt", "sortedNBAcombinedFile.txt")
 sort_file("NHANESheightCMfile.txt", "sortedNHANEScmFile.txt")
 
+trim_data("sortedNHANEScmFile.txt", "adjustedNHANEScmFile.txt", 146)
+
+"""
+create_plot_graph("sortedNBAcmFile.txt", "Height", "Occurrences", "Plot Graph - NBA Height", 15, 2)
 create_plot_graph("sortedNBAcmFile.txt", "Height", "Occurrences", "Plot Graph - NBA Height", 15, 2)
 create_plot_graph("sortedWNBAcmFile.txt", "Height", "Occurrences", "Plot Graph - WNBA Height", 15, 2)
 create_plot_graph("sortedNBAcombinedFile.txt", "Height", "Occurrences", "Plot Graph - NBA Combined Height", 15, 2)
@@ -205,9 +240,52 @@ create_histogram("sortedWNBAcmFile.txt", "Height", "Occurrences", "Histogram - W
 create_histogram("sortedNBAcombinedFile.txt", "Height", "Occurrences", "Histogram - NBA Combined Height", 15, 18)
 create_histogram("sortedNHANEScmFile.txt", "Height", "Occurrences", "Histogram - NHANES Height", 22, 40)
 
-create_normal_distribution_graph("sortedNBAcmFile.txt", "Data Points", "Probability Density", "Normal Distribution - NBA Height", 15, 2)
-create_normal_distribution_graph("sortedWNBAcmFile.txt", "Data Points", "Probability Density", "Normal Distribution - WNBA Height", 15, 2)
-create_normal_distribution_graph("sortedNBAcombinedFile.txt", "Data Points", "Probability Density", "Normal Distribution - NBA Combined Height", 15, 2)
-create_normal_distribution_graph("sortedNHANEScmFile.txt", "Data Points", "Probability Density", "Normal Distribution - NHANES Height", 22, 3)
+create_normal_distribution_graph("sortedNBAcmFile.txt", "Data Points", "Probability", "Probability Density - NBA Height", 15, 2)
+create_normal_distribution_graph("sortedWNBAcmFile.txt", "Data Points", "Probability", "Probability Density - WNBA Height", 15, 2)
+create_normal_distribution_graph("sortedNBAcombinedFile.txt", "Data Points", "Probability", "Probability Density - NBA Combined Height", 18, 2)
+create_normal_distribution_graph("sortedNHANEScmFile.txt", "Data Points", "Probability", "Probability Density - NHANES Height", 25, 3)
+create_plot_graph("adjustedNHANEScmFile.txt", "Height", "Occurrences", "Plot Graph - Adjusted NHANES Height", 22, 3)
+create_histogram("adjustedNHANEScmFile.txt", "Height", "Occurrences", "Histogram - Adjusted NHANES Height", 22, 40)
+create_normal_distribution_graph("AdjustedNHANEScmFile.txt", "Data Points", "Probability", "Probability Density - Adjusted NHANES Height", 25, 3)
+"""
 
-print("probability of being over 213.4 cm tall is " + str(1-calculate_probability(213.4, 200.5, 8.6)))
+print("With a mean/SD of 156.6/22.3, probability of being under 152.4 cm is " + str((calculate_probability(152.4, 156.6, 22.3))*100) + "%")
+print("With a mean/SD of 156.6/22.3, probability of being under 167.6 cm is " + str((calculate_probability(167.6, 156.6, 22.3))*100) + "%")
+print("With a mean/SD of 156.6/22.3, probability of being under 182.9 cm is " + str((calculate_probability(182.9, 156.6, 22.3))*100) + "%")
+print("With a mean/SD of 156.6/22.3, probability of being under 198.1 cm is " + str((calculate_probability(198.12, 156.6, 22.3))*100) + "%")
+print("With a mean/SD of 156.6/22.3, probability of being under 213.4 cm is " + str((calculate_probability(213.4, 156.6, 22.3))*100) + "%")
+
+print("With a mean/SD of 156.6/22.3, probability of being over 152.4 cm but under 167.6 cm is " +
+      str(((calculate_probability(167.6, 156.6, 22.3)) - (calculate_probability(152.4, 156.6, 22.3)))*100) + "%")
+print("With a mean/SD of 156.6/22.3, probability of being over 167.6 cm but under 182.9 cm is " +
+      str(((calculate_probability(182.9, 156.6, 22.3)) - (calculate_probability(167.6, 156.6, 22.3)))*100) + "%")
+print("With a mean/SD of 156.6/22.3, probability of being over 182.9 cm but under 198.1 cm is " +
+      str(((calculate_probability(198.1, 156.6, 22.3)) - (calculate_probability(182.9, 156.6, 22.3)))*100) + "%")
+print("With a mean/SD of 156.6/22.3, probability of being over 198.1 cm but under 213.4 cm is " +
+      str(((calculate_probability(213.4, 156.6, 22.3)) - (calculate_probability(198.1, 156.6, 22.3)))*100) + "%")
+
+print("With a mean/SD of 156.6/22.3, probability of being over 213.4 cm is " + str((1-calculate_probability(213.4, 156.6, 22.3))*100) + "%\n")
+
+print("With a mean/SD of 165.9/10.0, probability of being 152.4 cm or under is " + str((calculate_probability(152.4, 165.9, 10.0))*100) + "%")
+print("With a mean/SD of 165.9/10.0, probability of being under 167.6 cm is " + str((calculate_probability(167.6, 165.9, 10.0))*100) + "%")
+print("With a mean/SD of 165.9/10.0, probability of being under 182.9 cm is " + str((calculate_probability(182.9, 165.9, 10.0))*100) + "%")
+print("With a mean/SD of 165.9/10.0, probability of being under 198.1 cm is " + str((calculate_probability(198.12, 165.9, 10.0))*100) + "%")
+print("With a mean/SD of 165.9/10.0, probability of being under 213.4 cm is " + str((calculate_probability(213.4, 165.9, 10.0))*100) + "%")
+
+print("With a mean/SD of 165.9/10.0, probability of being over 152.4 cm but under or equal to 167.6 cm is " +
+      str(((calculate_probability(167.6, 165.9, 10.0)) - (calculate_probability(152.5, 165.9, 10.0)))*100) + "%")
+print("With a mean/SD of 165.9/10.0, probability of being over 167.6 cm but under or equal to 182.9 cm is " +
+      str(((calculate_probability(182.9, 165.9, 10.0)) - (calculate_probability(167.7, 165.9, 10.0)))*100) + "%")
+print("With a mean/SD of 165.9/10.0, probability of being over 182.9 cm but under or equal to 198.1 cm is " +
+      str(((calculate_probability(198.1, 165.9, 10.0)) - (calculate_probability(183.0, 165.9, 10.0)))*100) + "%")
+print("With a mean/SD of 165.9/10.0, probability of being over 198.1 cm but under or equal to 213.4 cm is " +
+      str(((calculate_probability(213.4, 165.9, 10.0)) - (calculate_probability(198.2, 165.9, 10.0)))*100) + "%")
+
+print("With a mean/SD of 165.9/10.0, probability of being over or equal to 213.4 cm is " + str((1-calculate_probability(213.4, 165.9, 10.0))*100) + "%\n")
+
+print("Amount of NBA/WNBA players under 152.4 cm is " + str(count_players_in_height_range("sortedNBAcombinedFile.txt", 0, 152.4)))
+print("Amount of NBA/WNBA players between 152.4 cm and 167.6 cm is " + str(count_players_in_height_range("sortedNBAcombinedFile.txt", 152.4, 167.6)))
+print("Amount of NBA/WNBA players between 167.6 cm and 182.9 cm is " + str(count_players_in_height_range("sortedNBAcombinedFile.txt", 167.6, 182.9)))
+print("Amount of NBA/WNBA players between 182.9 cm and 198.1 cm is " + str(count_players_in_height_range("sortedNBAcombinedFile.txt", 182.9, 198.1)))
+print("Amount of NBA/WNBA players between 198.1 cm and 213.4 cm is " + str(count_players_in_height_range("sortedNBAcombinedFile.txt", 198.1, 213.4)))
+print("Amount of NBA/WNBA players 213.4 and over is " + str(count_players_in_height_range("sortedNBAcombinedFile.txt", 213.4, 999999)))
