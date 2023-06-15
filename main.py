@@ -172,6 +172,10 @@ def sort_file (inputFile, outputFile):
     inputFileVar.close()
     outputFileVar.close()
 
+def calculate_probability (x, mean, standardDeviation):
+    z_score = calculate_Z_score(x, mean, standardDeviation)
+    print("Probability of being less or equal to " + str(mean) + " cm tall is " + str(round(st.norm.cdf(z_score),1)))
+
 
 
 ####################################################################################################################
@@ -185,32 +189,6 @@ convert_FT_to_CM("NBAheightFTfile.txt", "NBAheightCMfile.txt")
 convert_FT_to_CM("WNBAheightFTfile.txt", "WNBAheightCMfile.txt")
 
 combine_WNBA_NBA("WNBAheightCMfile.txt", "NBAheightCMfile.txt", "NBAcombinedCMfile.txt")
-
-NBAmean = round(calculate_mean("NBAheightCMfile.txt"), 1)
-NBAvariance = NBAmean**2
-
-WNBAmean = round(calculate_mean("WNBAheightCMfile.txt"), 1)
-WNBAvariance = WNBAmean**2
-
-combinedMean = round(calculate_mean("NBAcombinedCMfile.txt"), 1)
-combinedVariance = combinedMean**2
-
-NHANESmean = round(calculate_mean("NHANESheightCMfile.txt"), 1)
-NHANESvariance = NHANESmean**2
-
-"""
-print("NBA mean: " + str(NBAmean) + "\n")
-print("NBA variance: " + str(NBAvariance) + "\n")
-
-print("WNBA mean: " + str(WNBAmean) + "\n")
-print("WNBA variance: " + str(WNBAvariance) + "\n")
-
-print("Combined NBA/WNBA mean: " + str(combinedMean) + "\n")
-print("Combined NBA/WNBA variance: " + str(combinedVariance) + "\n")
-
-print("NHANES mean: " + str(NHANESmean) + " (NOTE: Sample age range is 0 to 150 years old)\n")
-print("NHANES variance: " + str(NHANESvariance) + "\n")
-"""
 
 sort_file("NBAheightCMfile.txt", "sortedNBAcmFile.txt")
 sort_file("WNBAheightCMfile.txt", "sortedWNBAcmFile.txt")
@@ -231,3 +209,5 @@ create_normal_distribution_graph("sortedNBAcmFile.txt", "Data Points", "Probabil
 create_normal_distribution_graph("sortedWNBAcmFile.txt", "Data Points", "Probability Density", "Normal Distribution - WNBA Height", 15, 2)
 create_normal_distribution_graph("sortedNBAcombinedFile.txt", "Data Points", "Probability Density", "Normal Distribution - NBA Combined Height", 15, 2)
 create_normal_distribution_graph("sortedNHANEScmFile.txt", "Data Points", "Probability Density", "Normal Distribution - NHANES Height", 22, 3)
+
+print("probability of being over 213.4 cm tall is " + str(1-calculate_probability(213.4, 200.5, 8.6)))
