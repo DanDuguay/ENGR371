@@ -187,6 +187,21 @@ def sort_file (inputFile, outputFile):
     inputFileVar.close()
     outputFileVar.close()
 
+def find_median (inputFile):
+    inputFileVar = open(inputFile, "r")
+    lines = []
+    count = 0
+
+    for line in inputFileVar:
+        if line.strip() != "":
+            lines.append(line)
+
+    if len(lines)%2 == 0:
+        return float(lines[int(len(lines)/2)])
+    else:
+        return (float(lines[int(np.ceil(len(lines)/2))]) + float(lines[int(np.floor(len(lines)/2))]))/2
+
+
 def calculate_probability (x, mean, standardDeviation):
     z_score = calculate_Z_score(x, mean, standardDeviation)
     #print("Probability of being less or equal to " + str(mean) + " cm tall is " + str(st.norm.cdf(z_score)))
@@ -197,6 +212,17 @@ def calculate_standard_deviation (x, mean):
     standardDeviation = np.sqrt(result/len(x))
     return standardDeviation
 
+def calculate_standard_deviation (inputFile):
+    inputFileVar = open(inputFile, "r")
+    x = [float(line.strip()) for line in inputFileVar]
+    mean = np.mean(x)
+
+    result = sum(((np.abs(x-mean))**2))
+    standardDeviation = np.sqrt(result/len(x))
+
+    inputFileVar.close()
+    return standardDeviation
+
 def count_players_in_height_range (inputFile, lowerLimit, upperLimit):
     inputFileVar = open(inputFile, "r")
     count = 0
@@ -205,9 +231,9 @@ def count_players_in_height_range (inputFile, lowerLimit, upperLimit):
         if float(line.strip()) > lowerLimit and float(line.strip()) <= upperLimit:
             count += 1
 
-
-    return count
     inputFileVar.close()
+    return count
+
 
 ####################################################################################################################
 
@@ -249,6 +275,31 @@ create_histogram("adjustedNHANEScmFile.txt", "Height", "Occurrences", "Histogram
 create_normal_distribution_graph("AdjustedNHANEScmFile.txt", "Data Points", "Probability", "Probability Density - Adjusted NHANES Height", 25, 3)
 """
 
+print("NHANES mean: " + str(calculate_mean("sortedNHANEScmFile.txt")))
+print("NHANES median: " + str(find_median("sortedNHANEScmFile.txt")))
+print("NHANES standard deviation: " + str(calculate_standard_deviation("sortedNHANEScmFile.txt")))
+print("NHANES variance: " + str(calculate_standard_deviation("sortedNHANEScmFile.txt")**2) + "\n")
+
+print("Adjusted NHANES mean: " + str(calculate_mean("adjustedNHANEScmFile.txt")))
+print("Adjusted NHANES median: " + str(find_median("adjustedNHANEScmFile.txt")))
+print("Adjusted NHANES standard deviation: " + str(calculate_standard_deviation("adjustedNHANEScmFile.txt")))
+print("Adjusted NHANES variance: " + str(calculate_standard_deviation("adjustedNHANEScmFile.txt")**2) + "\n")
+
+print("NBA mean: " + str(calculate_mean("sortedNBAcmFile.txt")))
+print("NBA median: " + str(find_median("sortedNBAcmFile.txt")))
+print("NBA standard deviation: " + str(calculate_standard_deviation("sortedNBAcmFile.txt")))
+print("NBA variance: " + str(calculate_standard_deviation("sortedNBAcmFile.txt")**2) + "\n")
+
+print("WNBA mean: " + str(calculate_mean("sortedWNBAcmFile.txt")))
+print("WNBA median: " + str(find_median("sortedWNBAcmFile.txt")))
+print("WNBA standard deviation: " + str(calculate_standard_deviation("sortedWNBAcmFile.txt")))
+print("WNBA variance: " + str(calculate_standard_deviation("sortedWNBAcmFile.txt")**2) + "\n")
+
+print("WNBA/NBA combined mean: " + str(calculate_mean("sortedNBAcombinedFile.txt")))
+print("WNBA/NBA combined median: " + str(find_median("sortedNBAcombinedFile.txt")))
+print("WNBA/NBA combined standard deviation: " + str(calculate_standard_deviation("sortedNBAcombinedFile.txt")))
+print("WNBA/NBA combined variance: " + str(calculate_standard_deviation("sortedNBAcombinedFile.txt")**2) + "\n")
+
 print("With a mean/SD of 156.6/22.3, probability of being under 152.4 cm is " + str((calculate_probability(152.4, 156.6, 22.3))*100) + "%")
 print("With a mean/SD of 156.6/22.3, probability of being under 167.6 cm is " + str((calculate_probability(167.6, 156.6, 22.3))*100) + "%")
 print("With a mean/SD of 156.6/22.3, probability of being under 182.9 cm is " + str((calculate_probability(182.9, 156.6, 22.3))*100) + "%")
@@ -280,12 +331,15 @@ print("With a mean/SD of 165.9/10.0, probability of being over 182.9 cm but unde
       str(((calculate_probability(198.1, 165.9, 10.0)) - (calculate_probability(183.0, 165.9, 10.0)))*100) + "%")
 print("With a mean/SD of 165.9/10.0, probability of being over 198.1 cm but under or equal to 213.4 cm is " +
       str(((calculate_probability(213.4, 165.9, 10.0)) - (calculate_probability(198.2, 165.9, 10.0)))*100) + "%")
+print("With a mean/SD of 165.9/10.0, probability of being over 213.4 cm but under or equal to 220.9 cm is " +
+      str(((calculate_probability(220.9, 165.9, 10.0)) - (calculate_probability(213.4, 165.9, 10.0)))*100) + "%")
 
-print("With a mean/SD of 165.9/10.0, probability of being over or equal to 213.4 cm is " + str((1-calculate_probability(213.4, 165.9, 10.0))*100) + "%\n")
+print("With a mean/SD of 165.9/10.0, probability of being over or equal to 221.0 cm is " + str((1-calculate_probability(221.0, 165.9, 10.0))*100) + "%\n")
 
 print("Amount of NBA/WNBA players under 152.4 cm is " + str(count_players_in_height_range("sortedNBAcombinedFile.txt", 0, 152.4)))
 print("Amount of NBA/WNBA players between 152.4 cm and 167.6 cm is " + str(count_players_in_height_range("sortedNBAcombinedFile.txt", 152.4, 167.6)))
 print("Amount of NBA/WNBA players between 167.6 cm and 182.9 cm is " + str(count_players_in_height_range("sortedNBAcombinedFile.txt", 167.6, 182.9)))
 print("Amount of NBA/WNBA players between 182.9 cm and 198.1 cm is " + str(count_players_in_height_range("sortedNBAcombinedFile.txt", 182.9, 198.1)))
 print("Amount of NBA/WNBA players between 198.1 cm and 213.4 cm is " + str(count_players_in_height_range("sortedNBAcombinedFile.txt", 198.1, 213.4)))
-print("Amount of NBA/WNBA players 213.4 and over is " + str(count_players_in_height_range("sortedNBAcombinedFile.txt", 213.4, 999999)))
+print("Amount of NBA/WNBA players between 213.4 cm and 221.0 cm is " + str(count_players_in_height_range("sortedNBAcombinedFile.txt", 213.4, 220.9)))
+print("Amount of NBA/WNBA players over 220.9 cm is " + str(count_players_in_height_range("sortedNBAcombinedFile.txt", 220.9, 99999)))
