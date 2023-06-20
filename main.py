@@ -254,7 +254,7 @@ sort_file("NHANESheightCMfile.txt", "sortedNHANEScmFile.txt")
 
 trim_data("sortedNHANEScmFile.txt", "adjustedNHANEScmFile.txt", 146)
 
-"""
+
 create_plot_graph("sortedNBAcmFile.txt", "Height", "Occurrences", "Plot Graph - NBA Height", 15, 2)
 create_plot_graph("sortedNBAcmFile.txt", "Height", "Occurrences", "Plot Graph - NBA Height", 15, 2)
 create_plot_graph("sortedWNBAcmFile.txt", "Height", "Occurrences", "Plot Graph - WNBA Height", 15, 2)
@@ -273,7 +273,7 @@ create_normal_distribution_graph("sortedNHANEScmFile.txt", "Data Points", "Proba
 create_plot_graph("adjustedNHANEScmFile.txt", "Height", "Occurrences", "Plot Graph - Adjusted NHANES Height", 22, 3)
 create_histogram("adjustedNHANEScmFile.txt", "Height", "Occurrences", "Histogram - Adjusted NHANES Height", 22, 40)
 create_normal_distribution_graph("AdjustedNHANEScmFile.txt", "Data Points", "Probability", "Probability Density - Adjusted NHANES Height", 25, 3)
-"""
+
 
 print("NHANES mean: " + str(calculate_mean("sortedNHANEScmFile.txt")))
 print("NHANES median: " + str(find_median("sortedNHANEScmFile.txt")))
